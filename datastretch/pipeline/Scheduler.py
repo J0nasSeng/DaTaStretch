@@ -1,6 +1,7 @@
 import networkx as nx
-import datastretch.pipeline.Stage as stg
 
+from pipeline.Stage import Stage
+from core.Task import Task
 from typing import List
 
 
@@ -19,8 +20,8 @@ class Scheduler:
         self.nodes = None
         self.task_to_dependencies = None
 
-    def generate_execution_graph(self, task_graph: nx.DiGraph, stages: List['stg.Stage']) -> (nx.DiGraph, List[List[
-        Task.Task]]):
+    def generate_execution_graph(self, task_graph: nx.DiGraph, stages: List['Stage']) -> (nx.DiGraph, List[List[
+        Task]]):
         """
         This method builds an execution-graph which determines the schedule of the tasks registered in the pipeline.
         To do this, the following is done:
@@ -43,7 +44,7 @@ class Scheduler:
         self.nodes = list(task_graph.nodes)
         self.task_to_dependencies = {t: t.get_dependencies() for t in self.nodes}
 
-        def reduce_stages(stage_list: List['stg.Stage']):
+        def reduce_stages(stage_list: List['Stage']):
             """
 
             :param stage_list: List of stages to be flattened
@@ -70,7 +71,7 @@ class Scheduler:
 
         return self.execution_graph, node_hierarchy
 
-    def _remove_dependencies(self, tsk: Task.Task) -> None:
+    def _remove_dependencies(self, tsk: Task) -> None:
         """
         This method removes all dependencies for a given task. The given task is one which has no dependencies itself.
         Therefore it can be run, so to guarantee that no task has a dependency to the given task in the next iteration,
@@ -83,7 +84,7 @@ class Scheduler:
             if tsk in self.task_to_dependencies[t]:
                 self.task_to_dependencies[t].remove(tsk)
 
-    def _find_ready(self, stage: stg.Stage, last_run: List[Task.Task]) -> List[Task.Task]:
+    def _find_ready(self, stage: Stage, last_run: List[Task]) -> List[Task]:
         """
         Private helper-method to find an execution graph. This method implements the finding of a list of tasks
         ready to be scheduled for one iteration over the stages.

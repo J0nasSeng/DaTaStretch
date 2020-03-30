@@ -1,30 +1,31 @@
-import datastretch.pipeline.Stage as stg
-import datastretch.pipeline.Scheduler as sch
-import datastretch.core.Task as co
-from datastretch import exceptions as pprte
-import datastretch.exceptions.CompilationError as cerr
 import random
 import networkx as nx
 import multiprocessing as mp
 import matplotlib.pyplot as plt
 
+from core.Task import Task
+from datastretch.pipeline.Scheduler import Scheduler
+from datastretch.pipeline.Stage import Stage
+from visualizing.Plotter import Plotter
+from exceptions.CompilationError import CompilationError
+from exceptions.PipelineRuntimeError import PipelineRuntimeError
 from typing import List, Set, Iterable
 from functools import partial
 
 MAX_PIPELINES = 1000
 
 
-class Pipeline(Plotter.Plotter):
+class Pipeline(Plotter):
 
     def __init__(self):
         super().__init__()
         self._hash = random.randint(0, MAX_PIPELINES)
         self.task_graph = nx.DiGraph()
-        self.stages: List[stg.Stage] = []
+        self.stages: List[Stage] = []
         self.MAX_PROCESSES = mp.cpu_count() * 2
-        self.scheduler = sch.Scheduler()
+        self.scheduler = Scheduler()
         self.execution_graph = None
-        self._start_nodes: Set[co.Task] = set()
+        self._start_nodes: Set[Task] = set()
         self._process_pool: mp.Pool = None
         self.tree = []
 
@@ -59,16 +60,16 @@ class Pipeline(Plotter.Plotter):
         self._process_pool.close()
         self._process_pool.join()
 
-    def add(self, tsk_or_stage: co.Task or stg.Stage) -> 'Pipeline':
+    def add(self, tsk_or_stage: Task or Stage) -> 'Pipeline':
         """
         add a new Task-instance to the pipeline
 
         :param tsk_or_stage: an object inheriting from Task
         :return: Pipeline-object
         """
-        if isinstance(tsk_or_stage, stg.Stage):
+        if isinstance(tsk_or_stage, Stage):
             self._add_stage(tsk_or_stage)
-        elif isinstance(tsk_or_stage, co.Task):
+        elif isinstance(tsk_or_stage, Task):
             self._add_task(tsk_or_stage)
         else:
             raise TypeError("Given type must be Task or Stage")
@@ -85,7 +86,7 @@ class Pipeline(Plotter.Plotter):
         if self._check_cycles_freedom():
             self.execution_graph, self.tree = self.scheduler.generate_execution_graph(self.task_graph, self.stages)
         else:
-            raise cerr.CompilationError("Can't compile execution graph from task graph. Task graph contains cycles.")
+            raise CompilationError("Can't compile execution graph from task graph. Task graph contains cycles.")
 
     def plot(self, graph: str = 'task', node_size: int = 5000, font_size: int = 10, arrow_size=30):
         """
@@ -115,7 +116,7 @@ class Pipeline(Plotter.Plotter):
         else:
             raise ValueError("'graph'-argument must have value 'task' or 'execution'")
 
-    def _add_stage(self, stage: stg.Stage) -> None:
+    def _add_stage(self, stage: Stage) -> None:
         """
 
         :param stage: Stage-object to be added in pipeline
@@ -128,7 +129,7 @@ class Pipeline(Plotter.Plotter):
                     self.task_graph.add_edge(d, task)
         self.stages.append(stage)
 
-    def _add_task(self, task: co.Task) -> None:
+    def _add_task(self, task: Task) -> None:
         """
 
         :param task: Task-object to be added in pipeline
@@ -175,7 +176,7 @@ class Pipeline(Plotter.Plotter):
             results.append(res)
         [res.wait() for res in results]
 
-    def _create_batches(self, tasks: List[co.Task]) -> List[List[co.Task]]:
+    def _create_batches(self, tasks: List[Task]) -> List[List[Task]]:
         """
         This method creates batches with respect to the maximum of processes being launched. If there are more parallel
         tasks than available processes the processes have to process the tasks in batches.
@@ -199,7 +200,7 @@ class Pipeline(Plotter.Plotter):
             batches.append(batch)
             return batches
 
-    def _move_data(self, tsk: co.Task, _) -> None:
+    def _move_data(self, tsk: Task, _) -> None:
         """
         This method is called if a task is executed and the process returns. It moves the data of task.data to its
         successors.
@@ -211,7 +212,7 @@ class Pipeline(Plotter.Plotter):
             successors = list(self.execution_graph.successors(tsk))
             tsk.move_data(successors)
         except nx.NetworkXError:
-            raise pprte.PipelineRuntimeError("Could not evaluate successors, probably a non-task object was passed.")
+            raise PipelineRuntimeError("Could not evaluate successors, probably a non-task object was passed.")
 
     def _check_cycles_freedom(self) -> bool:
         start_nodes = self.stages[0].task_list
