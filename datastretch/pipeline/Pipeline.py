@@ -1,9 +1,8 @@
-import pipeline.Stage as stg
-import pipeline.Scheduler as sch
-import core.Task as co
-import exceptions.PipelineRuntimeError as pprte
-import exceptions.CompilationError as cerr
-import visualizing.Plotter as plotter
+import datastretch.pipeline.Stage as stg
+import datastretch.pipeline.Scheduler as sch
+import datastretch.core.Task as co
+from datastretch import exceptions as pprte
+import datastretch.exceptions.CompilationError as cerr
 import random
 import networkx as nx
 import multiprocessing as mp
@@ -15,7 +14,7 @@ from functools import partial
 MAX_PIPELINES = 1000
 
 
-class Pipeline(plotter.Plotter):
+class Pipeline(Plotter.Plotter):
 
     def __init__(self):
         super().__init__()
