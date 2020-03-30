@@ -8,8 +8,8 @@ task-executions. Both graphs can be plotted by DaTaStretch for debugging-purpose
 
 ## How to setup
 The setup can be done as follows:
-1. Pull the repository
-2. Install all dependencies you haven't installed yet.
+1. Execute 'pip install datastretch'
+2. Import 'datastretch'
 3. Define your tasks by creating classes inheriting from the Task-class
 4. Define dependencies between your tasks.
 5. Create a Pipeline-object
