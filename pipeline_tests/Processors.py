@@ -1,5 +1,6 @@
 from datastretch.core import Task
 
+import os
 
 class ProcessingTask1(Task):
 
@@ -8,10 +9,8 @@ class ProcessingTask1(Task):
         super().__init__()
 
     def run(self):
-        print("I am processing class 1!")
-        self.data = "Data of ProcessingTask1"
+        self.data = "This data will be passed to my successor."
         return self.data
-
 
 
 class ProcessingTask2(Task):
@@ -21,6 +20,5 @@ class ProcessingTask2(Task):
         super().__init__()
 
     def run(self):
-        print("I am processing class 2!")
-        self.data = "Data of ProcessingTask2"
+        self.data = "This data will be passed to my successor."
         return self.data

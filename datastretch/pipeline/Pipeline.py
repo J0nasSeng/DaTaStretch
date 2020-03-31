@@ -3,12 +3,11 @@ import networkx as nx
 import multiprocessing as mp
 import matplotlib.pyplot as plt
 
-from core.Task import Task
+from datastretch.core.Task import Task
 from datastretch.pipeline.Scheduler import Scheduler
 from datastretch.pipeline.Stage import Stage
-from visualizing.Plotter import Plotter
-from exceptions.CompilationError import CompilationError
-from exceptions.PipelineRuntimeError import PipelineRuntimeError
+from datastretch.visualizing.Plotter import Plotter
+from datastretch.exceptions import CompilationError, PipelineRuntimeError
 from typing import List, Set, Iterable
 from functools import partial
 
@@ -174,7 +173,7 @@ class Pipeline(Plotter):
             res = self._process_pool.apply_async(task.run, args=task.run_arguments['args'],
                                                  kwds=task.run_arguments['kwargs'], callback=callback)
             results.append(res)
-        [res.wait() for res in results]
+        [res.get() for res in results]
 
     def _create_batches(self, tasks: List[Task]) -> List[List[Task]]:
         """
@@ -200,7 +199,7 @@ class Pipeline(Plotter):
             batches.append(batch)
             return batches
 
-    def _move_data(self, tsk: Task, _) -> None:
+    def _move_data(self, tsk: Task, result) -> None:
         """
         This method is called if a task is executed and the process returns. It moves the data of task.data to its
         successors.
@@ -209,8 +208,8 @@ class Pipeline(Plotter):
         :return: None
         """
         try:
-            successors = list(self.execution_graph.successors(tsk))
-            tsk.move_data(successors)
+            successors = list(self.task_graph.successors(tsk))
+            tsk.move_data(successors, result)
         except nx.NetworkXError:
             raise PipelineRuntimeError("Could not evaluate successors, probably a non-task object was passed.")
 

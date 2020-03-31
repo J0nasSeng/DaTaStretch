@@ -1,4 +1,4 @@
-from core.Task import Task
+from datastretch.core import Task
 
 class Stage:
 

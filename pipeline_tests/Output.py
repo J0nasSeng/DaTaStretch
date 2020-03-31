@@ -1,5 +1,6 @@
 from datastretch.core import Task
 
+import os
 
 class Output(Task):
 
@@ -8,6 +9,5 @@ class Output(Task):
         super().__init__()
 
     def run(self):
-        print("Output: I have received:")
-        print(self.processingtask1_data)
+        print("Output: I received from ProcessingTask2:")
         print(self.processingtask2_data)

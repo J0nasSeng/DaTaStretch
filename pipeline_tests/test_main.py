@@ -1,8 +1,8 @@
 from datastretch.pipeline import Pipeline
 from datastretch.pipeline import Stage
-from documentation.user_guide.Loaders import *
-from documentation.user_guide.Processors import *
-from documentation.user_guide.Output import *
+from pipeline_tests.Output import Output
+from pipeline_tests.Loaders import *
+from pipeline_tests.Processors import *
 
 loader1 = LoaderSource1()
 loader2 = LoaderSource2()

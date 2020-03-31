@@ -42,7 +42,8 @@ class LoaderSource1(Task):
 
     def run(self):
         print("I am Loader number 1!")
-        self._flow_data = "This data will be passed to my successor."
+        self.data = "This data will be passed to my successor."
+        return self.data
 ````
 ````python
 class LoaderSource2(Task):
@@ -53,7 +54,8 @@ class LoaderSource2(Task):
 
     def run(self):
         print("I am Loader number 2!")
-        self._flow_data = "This data will be passed to my successor."
+        self.data = "This data will be passed to my successor."
+        return self.data
 ````
 ````python
 class LoaderSource3(Task):
@@ -64,7 +66,7 @@ class LoaderSource3(Task):
 
     def run(self, example_arg):
         print("I am Loader number 3 and get argument {}".format(example_arg))
-        self._flow_data = "This data will be passed to my successor."
+        self.data = "This data will not be passed to my successor."
 ````
 As you can see, the ``run()``-method of the third class gets
 and argument. This is absolutely legal, later on we will tell the pipeline
@@ -85,7 +87,8 @@ class ProcessingTask1(Task):
 
     def run(self):
         print("I am processing class 1!")
-        self._flow_data = "This data will be passed to my successor."
+        self.data = "Data of ProcessingTask1"
+        return self.data
 ````
 ````python
 class ProcessingTask2(Task):
@@ -96,7 +99,9 @@ class ProcessingTask2(Task):
 
     def run(self):
         print("I am processing class 2!")
-        self._flow_data = "This data will be passed to my successor."
+        self.data = "Data of ProcessingTask2"
+        return self.data
+
 ````
 
 ### Output-class
@@ -108,7 +113,9 @@ class Output(Task):
         super().__init__()
 
     def run(self):
-        print("I will calculate the output!")
+        print("Output: I have received:")
+        print(self.processingtask1_data)
+        print(self.processingtask2_data)
 ````
 
 ## Defining Dependencies
@@ -209,4 +216,17 @@ if __name__ == '__main__':
 It is important to run the pipeline within the 
 ``if __name__ == '__main__':'``-block, otherwise you
 will get multiprocessing-errors.
+
+## Data Flow
+The last important info you need when using DaTaStretch is that if you want your
+results to be forwarded to its successors, you have to return them in the ``run()``-
+method.
+
+Furthermore DaTaStretch allows you to choose between two access-patterns you can
+use when accessing data of the ancestor-task. Each task has a method ``attr_access_as()``
+which takes one argument. This argument can be 'attr' or 'dict'. The first option
+allows you to access the data in you successor-task easily via 'self.[loweredtaskname]_data',
+the second option makes the data-attribute of a task to a dictionary that contains
+the 'loweredtaskname_data' as keys and the data as values.
+
 Now you are ready to build your own pipelines, have fun!

@@ -1,7 +1,7 @@
 import networkx as nx
 
-from pipeline.Stage import Stage
-from core.Task import Task
+from datastretch.pipeline import Stage
+from datastretch.core import Task
 from typing import List
 
 
