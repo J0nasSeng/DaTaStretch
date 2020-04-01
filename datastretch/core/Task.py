@@ -1,7 +1,7 @@
 import random
 
 from datastretch.exceptions import AccessException
-from typing import List
+from typing import List, Iterable
 
 MAX_TASKS = 1000
 
@@ -66,7 +66,7 @@ class Task:
         for s in successors:
             s.receive(result, self.name)
 
-    def get_dependency(self) -> 'Task':
+    def get_dependency(self) -> Iterable:
         """
         Generator yielding the dependencies of a task
 

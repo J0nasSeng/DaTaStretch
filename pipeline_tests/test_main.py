@@ -26,19 +26,14 @@ loader3.run_args('Our argument')
 
 stage1, stage2, stage3 = Stage(), Stage(), Stage()
 
-stage1.add(loader1)
-stage1.add(loader2)
-stage1.add(loader3)
+stage1.add(loader1, loader2, loader3)
 
-stage2.add(pt1)
-stage2.add(pt2)
+stage2.add(pt1, pt2)
 
 stage3.add(out)
 
 pipeline = Pipeline()
-pipeline.add(stage1)
-pipeline.add(stage2)
-pipeline.add(stage3)
+pipeline.add(stage1, stage2, stage3)
 
 pipeline.compile()
 # you can plot those if you want to:

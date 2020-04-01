@@ -14,6 +14,25 @@ from functools import partial
 MAX_PIPELINES = 1000
 
 
+def check_all_same_type(iterable: Iterable) -> bool:
+    """
+    Function to check if all objects of an iterable have same type.
+
+    :param iterable: Iterable of objects
+    :return: None
+    """
+    t = None
+    try:
+        t = type(iterable[0])
+    except KeyError:
+        raise KeyError("Iterable has no key 0! It is empty.")
+
+    for obj in iterable:
+        if not isinstance(obj, t):
+            raise TypeError("Not all objects have same type.")
+    return True
+
+
 class Pipeline(Plotter):
 
     def __init__(self):
@@ -59,20 +78,24 @@ class Pipeline(Plotter):
         self._process_pool.close()
         self._process_pool.join()
 
-    def add(self, tsk_or_stage: Task or Stage) -> 'Pipeline':
+    def add(self, *tsk_or_stage: Task or Stage) -> 'Pipeline':
         """
-        add a new Task-instance to the pipeline
+        add new task or stage object to pipeline. All given objects must have the same type.
 
         :param tsk_or_stage: an object inheriting from Task
         :return: Pipeline-object
         """
-        if isinstance(tsk_or_stage, Stage):
-            self._add_stage(tsk_or_stage)
-        elif isinstance(tsk_or_stage, Task):
-            self._add_task(tsk_or_stage)
+        if check_all_same_type(tsk_or_stage):
+            for obj in tsk_or_stage:
+                if isinstance(obj, Stage):
+                    self._add_stage(obj)
+                elif isinstance(obj, Task):
+                    self._add_task(obj)
+                else:
+                    raise TypeError("Given type must be Task or Stage")
+            return self
         else:
-            raise TypeError("Given type must be Task or Stage")
-        return self
+            raise TypeError("All objects given in argument must have the same type.")
 
     def compile(self):
         """
@@ -220,4 +243,3 @@ class Pipeline(Plotter):
             return False
         except nx.NetworkXNoCycle:
             return True
-

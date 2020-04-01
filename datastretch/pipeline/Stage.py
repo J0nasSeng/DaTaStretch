@@ -1,20 +1,24 @@
 from datastretch.core import Task
 
+
 class Stage:
 
     def __init__(self):
         self.task_list = []
 
-    def add(self, tsk: Task, dependency: Task = None) -> 'Stage':
+    def add(self, *tsk: Task, dependency: Task = None) -> 'Stage':
         """
 
         :param dependency: Task object the added object depends on. Must be in a different stage. If None it has no dependency or must already be set.
-        :param tsk: Task object to be added to stage
+        :param tsk: Tuple of Task objects to be added to stage
         :return: Stage-object
         """
-        if dependency is not None:
-            tsk.dependency(dependency)
-        self.task_list.append(tsk)
+        for t in tsk:
+            if not isinstance(t, Task):
+                raise TypeError("Given object does not inherit from Task-class.")
+            if dependency is not None:
+                t.dependency(dependency)
+            self.task_list.append(t)
         return self
 
     def remove(self, tsk: Task) -> 'Stage':

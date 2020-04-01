@@ -26,9 +26,13 @@ processes is set to the double of available CPU-cores of your machine.
 `run(self) -> None`: Freezes the task-graph, generates an execution-graph if it was not done yet
 and executes the defined tasks based on the execution-graph.
 
-`add(self, task_or_stage: Task or Stage) -> Pipeline`: Adds a `Stage` or a task to the pipeline. When adding a stage, all
-dependencies of the tasks must be set. When adding a `Task` the dependency will be automatically be resolved
-if it is set in the passed object. If not, the object gets placed in the last stage independently.
+`add(self, *task_or_stage: Task or Stage) -> Pipeline`: Use this method to add one or more objects of type `Stage` or
+`Task` to a pipeline. If adding a `Stage`-object, all dependencies of its task must be set (or be None if ther are no).
+If a `Task`-object is given, the dependencies will automatically be resolved if possible. If this fails it will be added
+to the last stage independently.
+
+> **WARNING**: Adding tasks may lead to errors, it is a experimental feature and is not tested properly. Only add stages to
+> be sure that your code works.
 
 `compile(self)`: When this method is called, the execution graph will be built. You do not have to call it
 before calling `run()`, this will be implicitly be done if `compile()` wasn't called yet. Especially for
@@ -126,11 +130,8 @@ as containers for tasks. They aggregate tasks sharing the same stage in the pipe
 means the tasks inside a stage are independent from each other.
 
 #### Methods
-`add(self, tsk: task.Task, dependency: task.Task # None) -> 'Stage')`: Use this
-method to add a task to a stage. It takes two `Task`-objects as input, the first one
-is the object to be added to the stage, the other one is a dependency to a task of another
-stage. The dependency-argument is optional. If you set the dependencies when creating
-tasks, you do not have to pass it.
+`add(self, *tsk: task.Task, dependency: task.Task # None) -> 'Stage')`: Use this method to add one or more
+`Task`-objects to a stage. If you set the dependency-argument all added objects will have the same dependency.
 The method returns the new `Stage`-object
 
 `remove(self, tsk: task.Task) -> 'Stage'`: Use this method to remove a task from
